@@ -1,10 +1,10 @@
 # Eeki Dev App - Testing Guide
 
-This guide explains how to use the comprehensive test suite created for your Production Data Collection app based on the discovered UI elements.
+This guide explains how to use the comprehensive test suite created for the Eeki Dev app based on the discovered UI elements.
 
 ## 📋 Overview
 
-The test suite includes multiple specialized test scripts designed to thoroughly test your app's functionality:
+The test suite includes multiple specialized test scripts designed to thoroughly test the app's functionality:
 
 ### Test Suites Created
 
