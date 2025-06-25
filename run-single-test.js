@@ -72,6 +72,27 @@ async function runTest() {
         
         // Test 3: Click Dome button (expansion)
         console.log('\n=== Step 3: Testing Dome button expansion ===');
+
+        // Wait for page to fully load and scroll to make sure all elements are visible
+        await driver.pause(3000);
+
+        // Scroll down to ensure Dome section is visible
+        console.log('Scrolling to ensure Dome section is visible...');
+        try {
+            await driver.execute('mobile: scroll', {direction: 'down'});
+        } catch (error) {
+            console.log('Scroll command not available, trying alternative...');
+            // Alternative scroll method
+            const scrollView = await driver.$('//android.widget.ScrollView');
+            if (await scrollView.isDisplayed()) {
+                await scrollView.touchAction([
+                    { action: 'press', x: 500, y: 1000 },
+                    { action: 'moveTo', x: 500, y: 500 },
+                    { action: 'release' }
+                ]);
+            }
+        }
+
         await ProductionDataPage.takeScreenshot('before_dome_click');
         await ProductionDataPage.clickSection('dome');
         await driver.pause(3000);

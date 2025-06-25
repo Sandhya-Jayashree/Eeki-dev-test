@@ -12,68 +12,68 @@ class ProductionDataPage {
     
     // Specimen Section Elements
     get specimenSection() {
-        return $('//*[@content-desc="🧪, 🔬, Specimen"]');
+        return $('//*[contains(@content-desc, "Specimen")]');
     }
-    
+
     get specimenText() {
         return $('//android.widget.TextView[@text="Specimen"]');
     }
-    
+
     get specimenIcon() {
         return $('//android.widget.TextView[@text="🧪"]');
     }
-    
+
     get specimenSubIcon() {
         return $('//android.widget.TextView[@text="🔬"]');
     }
-    
+
     // Dome Section Elements
     get domeSection() {
         return $('//*[@content-desc="Dome"]');
     }
-    
+
     get domeText() {
         return $('//android.widget.TextView[@text="Dome"]');
     }
-    
+
     get domeIconButton() {
         return $('//android.view.ViewGroup[@resource-id="icon-button-container"]//android.widget.Button[@resource-id="icon-button"]');
     }
-    
+
     get domeIcon() {
         return $('//android.widget.TextView[@text="🏠"]');
     }
-    
+
     // Harvesting Section Elements
     get harvestingSection() {
         return $('//*[@content-desc="Harvesting"]');
     }
-    
+
     get harvestingText() {
         return $('//android.widget.TextView[@text="Harvesting"]');
     }
-    
+
     get harvestingIconButton() {
         return $('(//android.view.ViewGroup[@resource-id="icon-button-container"]//android.widget.Button[@resource-id="icon-button"])[2]');
     }
-    
+
     get harvestingIcon() {
         return $('//android.widget.TextView[@text="🌾"]');
     }
-    
+
     // Media Moisture Section Elements
     get mediaMoistureSection() {
         return $('//*[@content-desc="Media Moisture"]');
     }
-    
+
     get mediaMoistureText() {
         return $('//android.widget.TextView[@text="Media Moisture"]');
     }
-    
+
     get mediaMoistureIconButton() {
         return $('(//android.view.ViewGroup[@resource-id="icon-button-container"]//android.widget.Button[@resource-id="icon-button"])[3]');
     }
-    
+
     get mediaMoistureIcon() {
         return $('//android.widget.TextView[@text="💧"]');
     }
@@ -135,23 +135,49 @@ class ProductionDataPage {
     }
 
     /**
+     * Scroll to make sure all elements are visible
+     */
+    async scrollToMakeElementsVisible() {
+        try {
+            console.log('Scrolling to ensure all elements are visible...');
+
+            // Try to find the scroll view
+            const scrollView = await browser.$('//android.widget.ScrollView');
+            if (await scrollView.isDisplayed()) {
+                // Scroll down a bit to reveal elements
+                await scrollView.touchAction([
+                    { action: 'press', x: 500, y: 1000 },
+                    { action: 'moveTo', x: 500, y: 700 },
+                    { action: 'release' }
+                ]);
+                await browser.pause(1000);
+            }
+        } catch (error) {
+            console.log(`Scroll attempt failed: ${error.message}`);
+        }
+    }
+
+    /**
      * Click on a specific section
      */
     async clickSection(sectionName) {
         console.log(`Clicking on ${sectionName} section...`);
-        
+
+        // First, try to scroll to make sure elements are visible
+        await this.scrollToMakeElementsVisible();
+
         const sectionMap = {
             'specimen': this.specimenSection,
             'dome': this.domeSection,
             'harvesting': this.harvestingSection,
             'mediaMoisture': this.mediaMoistureSection
         };
-        
+
         const section = sectionMap[sectionName.toLowerCase()];
         if (!section) {
             throw new Error(`Unknown section: ${sectionName}`);
         }
-        
+
         await section.waitForDisplayed({ timeout: 10000 });
         await section.click();
         await browser.pause(2000); // Wait for any navigation or state change
