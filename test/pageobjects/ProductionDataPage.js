@@ -3,9 +3,7 @@
  * Based on discovered UI elements from app inspection
  */
 
-const BasePage = require('./BasePage');
-
-class ProductionDataPage extends BasePage {
+class ProductionDataPage {
     
     // Main Screen Elements
     get mainTitle() {
@@ -314,6 +312,34 @@ class ProductionDataPage extends BasePage {
             return await element.isDisplayed();
         } catch (error) {
             return false;
+        }
+    }
+
+    /**
+     * Take a screenshot with a given name
+     */
+    async takeScreenshot(name) {
+        try {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `${name}_${timestamp}.png`;
+            await browser.saveScreenshot(`./screenshots/${filename}`);
+            console.log(`Screenshot saved: ${filename}`);
+        } catch (error) {
+            console.log(`Failed to take screenshot: ${error.message}`);
+        }
+    }
+
+    /**
+     * Navigate back using Android back button
+     */
+    async navigateBack() {
+        try {
+            console.log('Pressing back button...');
+            await browser.back();
+            await browser.pause(2000); // Wait for navigation
+            await this.takeScreenshot('after_back_navigation');
+        } catch (error) {
+            console.log(`Failed to navigate back: ${error.message}`);
         }
     }
 }
