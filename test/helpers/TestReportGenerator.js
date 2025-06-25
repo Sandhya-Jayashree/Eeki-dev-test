@@ -1,0 +1,406 @@
+/**
+ * Test Report Generator
+ * Generates comprehensive HTML reports for Appium test results
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+class TestReportGenerator {
+    
+    /**
+     * Generate comprehensive HTML report
+     */
+    static async generateComprehensiveReport(testResults) {
+        try {
+            // Ensure directories exist
+            this.ensureDirectories();
+            
+            // Generate HTML content
+            const htmlContent = this.generateHtmlContent(testResults);
+            
+            // Save HTML report
+            const reportPath = path.join('./test-results', 'comprehensive_test_report.html');
+            fs.writeFileSync(reportPath, htmlContent);
+            
+            // Save JSON results
+            const jsonPath = path.join('./test-results', 'test_results.json');
+            fs.writeFileSync(jsonPath, JSON.stringify(testResults, null, 2));
+            
+            console.log(`📄 HTML Report: ${reportPath}`);
+            console.log(`📊 JSON Results: ${jsonPath}`);
+            
+            return reportPath;
+        } catch (error) {
+            console.error('❌ Error generating report:', error.message);
+            throw error;
+        }
+    }
+    
+    /**
+     * Generate HTML content for the report
+     */
+    static generateHtmlContent(testResults) {
+        const duration = testResults.endTime && testResults.startTime ? 
+            new Date(testResults.endTime) - new Date(testResults.startTime) : 0;
+        
+        const durationFormatted = this.formatDuration(duration);
+        
+        return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Data Collection App - Test Report</title>
+    <style>
+        ${this.getStyles()}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧪 Production Data Collection App</h1>
+            <h2>Comprehensive Test Report</h2>
+            <div class="timestamp">Generated: ${new Date().toLocaleString()}</div>
+        </header>
+
+        <div class="summary-section">
+            <h3>📊 Test Summary</h3>
+            <div class="summary-grid">
+                <div class="summary-card total">
+                    <div class="summary-number">${testResults.summary.total}</div>
+                    <div class="summary-label">Total Tests</div>
+                </div>
+                <div class="summary-card passed">
+                    <div class="summary-number">${testResults.summary.passed}</div>
+                    <div class="summary-label">Passed</div>
+                </div>
+                <div class="summary-card failed">
+                    <div class="summary-number">${testResults.summary.failed}</div>
+                    <div class="summary-label">Failed</div>
+                </div>
+                <div class="summary-card success-rate">
+                    <div class="summary-number">${testResults.summary.successRate.toFixed(1)}%</div>
+                    <div class="summary-label">Success Rate</div>
+                </div>
+            </div>
+            <div class="execution-info">
+                <p><strong>Suite:</strong> ${testResults.suiteName}</p>
+                <p><strong>Start Time:</strong> ${new Date(testResults.startTime).toLocaleString()}</p>
+                <p><strong>End Time:</strong> ${new Date(testResults.endTime).toLocaleString()}</p>
+                <p><strong>Duration:</strong> ${durationFormatted}</p>
+            </div>
+        </div>
+
+        <div class="tests-section">
+            <h3>🔍 Test Details</h3>
+            ${this.generateTestDetails(testResults.tests)}
+        </div>
+
+        <div class="screenshots-section">
+            <h3>📸 Screenshots</h3>
+            <p>Screenshots are saved in the <code>./screenshots/</code> directory.</p>
+            <div class="screenshot-info">
+                <p>📁 <strong>Screenshot Directory:</strong> ./screenshots/</p>
+                <p>🔍 <strong>Naming Convention:</strong> [action]_[timestamp].png</p>
+            </div>
+        </div>
+
+        <div class="technical-details">
+            <h3>⚙️ Technical Details</h3>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <strong>Test Framework:</strong> WebdriverIO + Mocha
+                </div>
+                <div class="tech-item">
+                    <strong>Automation:</strong> Appium UiAutomator2
+                </div>
+                <div class="tech-item">
+                    <strong>Platform:</strong> Android
+                </div>
+                <div class="tech-item">
+                    <strong>App:</strong> app-dev-release.apk
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Generated by Appium Test Suite - ${new Date().getFullYear()}</p>
+        </footer>
+    </div>
+</body>
+</html>`;
+    }
+    
+    /**
+     * Generate test details HTML
+     */
+    static generateTestDetails(tests) {
+        return tests.map((test, index) => {
+            const statusIcon = test.status === 'passed' ? '✅' : '❌';
+            const statusClass = test.status === 'passed' ? 'test-passed' : 'test-failed';
+            const duration = this.formatDuration(test.duration);
+            
+            return `
+            <div class="test-item ${statusClass}">
+                <div class="test-header">
+                    <span class="test-status">${statusIcon}</span>
+                    <h4 class="test-name">${test.name}</h4>
+                    <span class="test-duration">${duration}</span>
+                </div>
+                <div class="test-details">
+                    <p><strong>Status:</strong> ${test.status.toUpperCase()}</p>
+                    <p><strong>Details:</strong> ${test.details || 'No additional details'}</p>
+                    ${test.error ? `<p class="error-message"><strong>Error:</strong> ${test.error}</p>` : ''}
+                    ${test.screenshots && test.screenshots.length > 0 ? 
+                        `<p><strong>Screenshots:</strong> ${test.screenshots.join(', ')}</p>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+    
+    /**
+     * Get CSS styles for the report
+     */
+    static getStyles() {
+        return `
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header h2 {
+            font-size: 1.5em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .timestamp {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .summary-section, .tests-section, .screenshots-section, .technical-details {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .summary-card {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+        }
+        
+        .summary-card.total { background: #3498db; }
+        .summary-card.passed { background: #2ecc71; }
+        .summary-card.failed { background: #e74c3c; }
+        .summary-card.success-rate { background: #9b59b6; }
+        
+        .summary-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .execution-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .test-item {
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .test-item.test-passed {
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .test-item.test-failed {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .test-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .test-status {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+        
+        .test-name {
+            flex: 1;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        
+        .test-duration {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .test-details {
+            padding: 20px;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            background: #fdf2f2;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .screenshot-info, .tech-grid {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .tech-item {
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #e1e8ed;
+            margin-top: 30px;
+        }
+        
+        code {
+            background: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .test-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }`;
+    }
+    
+    /**
+     * Format duration in milliseconds to readable format
+     */
+    static formatDuration(ms) {
+        if (!ms || ms < 0) return '0ms';
+        
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        
+        if (hours > 0) {
+            return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+        } else if (minutes > 0) {
+            return `${minutes}m ${seconds % 60}s`;
+        } else if (seconds > 0) {
+            return `${seconds}s`;
+        } else {
+            return `${ms}ms`;
+        }
+    }
+    
+    /**
+     * Ensure required directories exist
+     */
+    static ensureDirectories() {
+        const dirs = ['test-results', 'screenshots'];
+        dirs.forEach(dir => {
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+                console.log(`📁 Created directory: ${dir}`);
+            }
+        });
+    }
+}
+
+module.exports = TestReportGenerator;

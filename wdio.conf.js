@@ -68,7 +68,14 @@ exports.config = {
     framework: 'mocha',
 
     // Test reporter
-    reporters: ['spec'],
+    reporters: [
+        'spec',
+        ['allure', {
+            outputDir: 'allure-results',
+            disableWebdriverStepsReporting: true,
+            disableWebdriverScreenshotsReporting: false,
+        }]
+    ],
     
     // Options to be passed to Mocha
     mochaOpts: {

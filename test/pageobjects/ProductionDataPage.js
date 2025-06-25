@@ -185,6 +185,34 @@ class ProductionDataPage {
     }
 
     /**
+     * Check if Dome section is expanded (Harvesting and Media Moisture are visible)
+     */
+    async isDomeExpanded() {
+        try {
+            const harvestingVisible = await this.harvestingSection.isDisplayed();
+            const mediaMoistureVisible = await this.mediaMoistureSection.isDisplayed();
+            return harvestingVisible && mediaMoistureVisible;
+        } catch (error) {
+            console.log(`Could not check Dome expansion status: ${error.message}`);
+            return false;
+        }
+    }
+
+    /**
+     * Ensure Dome is expanded before accessing Harvesting or Media Moisture
+     */
+    async ensureDomeExpanded() {
+        const isExpanded = await this.isDomeExpanded();
+        if (!isExpanded) {
+            console.log('Dome is not expanded, expanding now...');
+            await this.clickSection('dome');
+            await browser.pause(2000);
+        } else {
+            console.log('Dome is already expanded');
+        }
+    }
+
+    /**
      * Scroll within the main content area
      */
     async scrollContent(direction = 'down', distance = 0.5) {

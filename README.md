@@ -1,6 +1,6 @@
-# Production Data Collection App - Single Comprehensive Test
+# Eeki Dev App - Single Comprehensive Test
 
-This project contains a single comprehensive test for the Production Data Collection mobile app.
+This project contains a single comprehensive test for the Eeki Dev mobile app.
 
 ## Test Overview
 
@@ -47,18 +47,48 @@ npm run appium:start
 
 ## Running the Test
 
-Run the single comprehensive test:
+Run the comprehensive test with HTML report generation:
+```bash
+npm run test:comprehensive
+```
+
+Or run the test directly with WebDriverIO:
+```bash
+npm run test:wdio
+```
+
+Or run the original test:
 ```bash
 npm test
 ```
 
-This will execute the test file `test/specs/single-comprehensive-test.js` which contains all the required test scenarios.
+This will execute the test file `test/specs/single-comprehensive-test.js` which contains all the required test scenarios with the **FIXED** Dome expansion logic.
 
-## Test Results
+## 🎯 Test Logic
 
-- Screenshots are saved in the `screenshots/` directory
-- Test results are logged to the console
-- Each button interaction is documented with before/after screenshots
+The test now properly handles the Dome expansion behavior:
+
+1. **Specimen**: Direct navigation button (Click → New Screen → Back)
+2. **Dome**: Expansion button (Click → Expands to show Harvesting & Media Moisture)
+3. **Harvesting**: Sub-item under Dome (Expand Dome → Click → New Screen → Back)
+4. **Media Moisture**: Sub-item under Dome (Expand Dome → Click → New Screen → Back)
+
+
+## Test Results & Reports
+
+- **Screenshots**: Saved in `./screenshots/` directory with timestamps
+- **HTML Report**: Comprehensive report generated at `./test-results/comprehensive_test_report.html`
+- **JSON Results**: Detailed test data saved in `./test-results/test_results.json`
+- **Console Output**: Real-time test progress and results
+- **Summary Report**: Test run summary in `./test-results/test_run_summary.json`
+
+### HTML Report Features
+- ✅ Responsive design
+- 📊 Test summary with pass/fail statistics
+- 🕐 Execution timing and duration
+- 📸 Screenshot references
+- 🔍 Detailed test step information
+- ❌ Error details for failed tests
 
 ## Configuration
 
@@ -67,6 +97,8 @@ The test is configured in `wdio.conf.js` to:
 - Target the `app-dev-release.apk` file
 - Run on Android Emulator (or modify for real device)
 - Use UiAutomator2 automation engine
+
+Note: Two tests have been intentionally made to fail to demonstrate the error handling and reporting capabilities.
 
 
 
