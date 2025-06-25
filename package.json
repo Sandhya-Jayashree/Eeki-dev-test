@@ -1,0 +1,28 @@
+{
+  "name": "apk-automation",
+  "version": "1.0.0",
+  "description": "Mobile automation testing for APK files using Appium and WebDriverIO",
+  "main": "index.js",
+  "scripts": {
+    "test": "wdio wdio.conf.js",
+    "test:basic": "wdio wdio.conf.js --spec ./test/specs/app.basic.test.js",
+    "test:advanced": "wdio wdio.conf.js --spec ./test/specs/app.advanced.test.js",
+    "test:android": "wdio wdio.conf.js --spec ./test/specs/**/*.js",
+    "appium": "appium",
+    "appium:start": "appium --port 4723",
+    "setup": "node setup.js",
+    "inspect": "node inspect-app.js",
+    "install:deps": "npm install"
+  },
+  "devDependencies": {
+    "@wdio/appium-service": "^8.40.3",
+    "@wdio/cli": "^8.40.6",
+    "@wdio/local-runner": "^8.40.6",
+    "@wdio/mocha-framework": "^8.40.3",
+    "@wdio/spec-reporter": "^8.40.3",
+    "appium": "^2.11.5",
+    "appium-uiautomator2-driver": "^4.2.4",
+    "webdriverio": "^8.40.6"
+  },
+  "private": true
+}
