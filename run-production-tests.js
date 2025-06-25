@@ -96,30 +96,40 @@ class ProductionTestRunner {
         };
 
         return new Promise((resolve) => {
-            const testProcess = spawn('npx', ['wdio', 'run', 'wdio.conf.js', '--spec', suite.file], {
-                stdio: 'inherit',
-                cwd: process.cwd()
-            });
+            try {
+                // Use Node's built-in exec instead of spawn
+                const { exec } = require('child_process');
+                
+                // Create command with proper quoting
+                const command = `node ./node_modules/@wdio/cli/bin/wdio.js run wdio.conf.js --spec "${suite.file}"`;
+                
+                const testProcess = exec(command, {
+                    cwd: process.cwd()
+                });
+                
+                // Pipe output to console
+                testProcess.stdout.pipe(process.stdout);
+                testProcess.stderr.pipe(process.stderr);
 
-            testProcess.on('close', (code) => {
-                suiteResult.endTime = new Date().toISOString();
-                suiteResult.exitCode = code;
-                suiteResult.status = code === 0 ? 'passed' : 'failed';
-                suiteResult.duration = new Date(suiteResult.endTime) - new Date(suiteResult.startTime);
+                testProcess.on('close', (code) => {
+                    suiteResult.endTime = new Date().toISOString();
+                    suiteResult.exitCode = code;
+                    suiteResult.status = code === 0 ? 'passed' : 'failed';
+                    suiteResult.duration = new Date(suiteResult.endTime) - new Date(suiteResult.startTime);
 
-                if (code === 0) {
-                    console.log(`✅ ${suite.name} - PASSED`);
-                    this.results.summary.passedSuites++;
-                } else {
-                    console.log(`❌ ${suite.name} - FAILED (Exit code: ${code})`);
-                    this.results.summary.failedSuites++;
-                }
+                    if (code === 0) {
+                        console.log(`✅ ${suite.name} - PASSED`);
+                        this.results.summary.passedSuites++;
+                    } else {
+                        console.log(`❌ ${suite.name} - FAILED (Exit code: ${code})`);
+                        this.results.summary.failedSuites++;
+                    }
 
-                this.results.testSuites.push(suiteResult);
-                resolve(suiteResult);
-            });
-
-            testProcess.on('error', (error) => {
+                    this.results.testSuites.push(suiteResult);
+                    resolve(suiteResult);
+                });
+            } catch (error) {
+                console.error(`Failed to execute test: ${error.message}`);
                 suiteResult.endTime = new Date().toISOString();
                 suiteResult.status = 'error';
                 suiteResult.error = error.message;
@@ -128,7 +138,7 @@ class ProductionTestRunner {
                 this.results.summary.failedSuites++;
                 this.results.testSuites.push(suiteResult);
                 resolve(suiteResult);
-            });
+            }
         });
     }
 

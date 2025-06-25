@@ -1,5 +1,8 @@
 const path = require('path');
 
+// Force CommonJS module resolution to avoid ts-node conflicts
+process.env.NODE_OPTIONS = '--loader=';
+
 exports.config = {
     // ====================
     // Runner Configuration
@@ -67,11 +70,17 @@ exports.config = {
     // Test framework
     framework: 'mocha',
 
-    // Disable TypeScript completely
-    autoCompileOpts: {
-        autoCompile: false
-    },
-    
+    // Disable TypeScript completely - remove autoCompileOpts to avoid ts-node conflicts
+    // autoCompileOpts: {
+    //     autoCompile: false
+    // },
+
+    // Explicitly disable TypeScript compilation
+    tsConfigPath: false,
+
+    // Force CommonJS module resolution
+    transformIgnorePatterns: [],
+
     // Test reporter
     reporters: ['spec'],
     

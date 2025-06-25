@@ -75,7 +75,7 @@ This script will:
 
 3. **Android Device/Emulator Connected**
    ```bash
-   adb devices
+   "C:\Users\subiv\AppData\Local\Android\Sdk\platform-tools\adb.exe" devices
    ```
 
 4. **APK File Present**
@@ -219,9 +219,9 @@ get specimenSection() {
 3. **Device Not Connected**
    ```bash
    # Check connected devices
-   adb devices
+   "C:\Users\subiv\AppData\Local\Android\Sdk\platform-tools\adb.exe" devices
    # Restart ADB if needed
-   adb kill-server && adb start-server
+   "C:\Users\subiv\AppData\Local\Android\Sdk\platform-tools\adb.exe" kill-server && "C:\Users\subiv\AppData\Local\Android\Sdk\platform-tools\adb.exe" start-server
    ```
 
 4. **APK Not Found**
